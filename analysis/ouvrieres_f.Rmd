@@ -1,0 +1,89 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+SciViews::R
+```
+
+```{r}
+?readxl::read_excel
+```
+
+```{r}
+ouvri <- read("../data/ouvrieres.xlsx")
+```
+
+```{r}
+o_f <- filter(ouvri, sexe != "M")
+```
+
+
+## Regression lineaire
+```{r}
+(lm2. <- lm(data = o_f, taille_cr ~ masse))
+summary(lm1.)
+```
+
+```{r}
+lm2. %>.% (function(lm, model = lm[["model"]], vars = names(model))
+  chart(model, aes_string(x = vars[2], y = vars[1])) +
+  geom_point() +
+  stat_smooth(method = "lm", formula = y ~ x))(.)
+plotly::ggplotly()
+```
+
+
+```{r}
+
+```
+
+```{r}
+lm2. %>.%
+  chart(broom::augment(.), .std.resid ~ .hat %size=% .cooksd) +
+  geom_point() +
+  geom_smooth(se = FALSE, size = 0.5, method = "loess", formula = y ~ x) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0) +
+  labs(x = "Leverage", y = "Standardized residuals") +
+  ggtitle("Residuals vs Leverage")
+```
+
+```{r}
+lm2. %>.%
+  chart(broom::augment(.), .cooksd ~ seq_along(.cooksd)) +
+  geom_bar(stat = "identity") +
+  geom_hline(yintercept = seq(0, 0.1, by = 0.05), colour = "darkgray") +
+  labs(x = "Obs. number", y = "Cook's distance") +
+  ggtitle("Cook's distance")
+```
+
+```{r}
+lm2. %>.%
+  chart(broom::augment(.), aes(sample = .std.resid)) +
+  geom_qq() +
+  geom_qq_line(colour = "darkgray") +
+  labs(x = "Theoretical quantiles", y = "Standardized residuals") +
+  ggtitle("Normal Q-Q")
+```
+
+```{r}
+lm2. %>.%
+  chart(broom::augment(.), .resid ~ .fitted) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_smooth(se = FALSE, method = "loess", formula = y ~ x) +
+  labs(x = "Fitted values", y = "Residuals") +
+  ggtitle("Residuals vs Fitted")
+```
+```{r}
+lm2. %>.%
+  chart(broom::augment(.), sqrt(abs(.std.resid)) ~ .fitted) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = "loess", formula = y ~ x) +
+  labs(x = "Fitted values",
+    y = expression(bold(sqrt(abs("Standardized residuals"))))) +
+  ggtitle("Scale-Location")
+```
+

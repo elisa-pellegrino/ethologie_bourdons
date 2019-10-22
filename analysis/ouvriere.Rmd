@@ -1,0 +1,126 @@
+---
+title: "Bourdons, the way to go!"
+author: "Elisa Pellegrino"
+date: "10/2/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+SciViews::R
+```
+
+```{r}
+?readxl::read_excel
+```
+
+
+```{r}
+ouvri <- read("../data/ouvrieres.xlsx")
+```
+
+### MATRICE DE CORRELATION
+```{r}
+o_sex <- select(ouvri, masse, taille, taille_cr)
+(o_sex_corr <- correlation(o_sex))
+plot(o_sex_corr)
+```
+
+La masse et la cellule radiale ont la plus grande correlation (0,71)
+
+### NUAGE DE POINTS
+
+```{r}
+chart(data = ouvri, taille_cr ~ masse) +
+  geom_point() 
+
+
+
+```
+
+
+##REGRESSION LINEAIRE 
+
+```{r}
+(lm1. <- lm(data = ouvri, taille_cr ~ masse))
+summary(lm1.)
+```
+
+
+### Interpretation graphique
+```{r}
+lm1. %>.%
+  (function(lm, model = lm[["model"]], vars = names(model))
+  chart(model, aes_string(x = vars[2], y = vars[1])) +
+  geom_point() +
+  stat_smooth(method = "lm", formula = y ~ x))(.)
+
+```
+
+### Residuals vs fitted
+```{r}
+lm1. %>.%
+  chart(broom::augment(.), .resid ~ .fitted) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_smooth(se = FALSE, method = "loess", formula = y ~ x) +
+  labs(x = "Fitted values", y = "Residuals") +
+  ggtitle("Residuals vs Fitted")
+
+
+```
+
+l
+### Normal Q-Q
+```{r}
+lm1. %>.%
+  chart(broom::augment(.), aes(sample = .std.resid)) +
+  geom_qq() +
+  geom_qq_line(colour = "darkgray") +
+  labs(x = "Theoretical quantiles", y = "Standardized residuals") +
+  ggtitle("Normal Q-Q")
+plotly::ggplotly()
+```
+
+### Scale location
+```{r}
+lm1. %>.%
+  chart(broom::augment(.), sqrt(abs(.std.resid)) ~ .fitted) +
+  geom_point() +
+  geom_smooth(se = FALSE, method = "loess", formula = y ~ x) +
+  labs(x = "Fitted values",
+    y = expression(bold(sqrt(abs("Standardized residuals"))))) +
+  ggtitle("Scale-Location")
+
+
+```
+
+
+```{r}
+lm1. %>.%
+  chart(broom::augment(.), .cooksd ~ seq_along(.cooksd)) +
+  geom_bar(stat = "identity") +
+  geom_hline(yintercept = seq(0, 0.1, by = 0.05), colour = "darkgray") +
+  labs(x = "Obs. number", y = "Cook's distance") +
+  ggtitle("Cook's distance")
+plotly::ggplotly()
+
+```
+
+
+```{r}
+lm1. %>.%
+  chart(broom::augment(.), .std.resid ~ .hat %size=% .cooksd) +
+  geom_point() +
+  geom_smooth(se = FALSE, size = 0.5, method = "loess", formula = y ~ x) +
+  geom_vline(xintercept = 0) +
+  geom_hline(yintercept = 0) +
+  labs(x = "Leverage", y = "Standardized residuals") +
+  ggtitle("Residuals vs Leverage")
+```
+
+
+
+
+
+
