@@ -19,6 +19,8 @@ SciViews::R
 ouvri <- read("../data/ouvrieres.xlsx")
 ```
 
+
+
 ### MATRICE DE CORRELATION
 ```{r}
 o_sex <- select(ouvri, masse, taille, taille_cr)
@@ -27,6 +29,17 @@ plot(o_sex_corr)
 ```
 
 La masse et la cellule radiale ont la plus grande correlation (0,71)
+
+
+```{r}
+cor.test(data = o_sex, ~ masse + taille_cr, alternative = "greater")
+
+```
+
+```{r}
+cor.test(data = o_sex, ~ masse + taille, alternative = "greater")
+```
+
 
 ### NUAGE DE POINTS
 
