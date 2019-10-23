@@ -51,6 +51,15 @@ chart(data = ouvri, taille_cr ~ masse) +
 
 ```
 
+```{r}
+chart(ouvri, taille_cr ~ masse) +
+  geom_point() + 
+  geom_abline(
+    aes(intercept = lm.$coefficients[1], slope = lm.$coefficients[2]), 
+    color = "red", size = 1.5) +
+  labs( color = "Modèle")  +
+  scale_color_viridis_c(direction = -1)
+```
 
 ##REGRESSION LINEAIRE 
 
@@ -66,7 +75,8 @@ lm1. %>.%
   (function(lm, model = lm[["model"]], vars = names(model))
   chart(model, aes_string(x = vars[2], y = vars[1])) +
   geom_point() +
-  stat_smooth(method = "lm", formula = y ~ x))(.)
+  stat_smooth(method = "lm", formula = y ~ x))(.) +
+  labs(x = "Masse (g)", y= "Taille de la cellule radiale (mm)")
 
 ```
 
